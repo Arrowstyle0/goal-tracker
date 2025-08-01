@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#06060a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>Goal Tracker</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-192x192.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      /* General Styles */
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f0c29 0%,
+          #302b63 50%,
+          #24243e 100%
+        );
+        color: #fff;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px; /* Increased max-width */
+        padding: 20px;
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .title {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+        background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* Input Group */
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        margin-bottom: 2rem;
+      }
+
+      input,
+      select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 12px;
+        color: #fff;
+        font-size: 1rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        appearance: none; /* Remove default arrow */
+        -webkit-appearance: none;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(79, 172, 254, 0.2);
+      }
+
+      button {
+        background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(79, 172, 254, 0.4);
+      }
+
+      button::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%) scale(0);
+        border-radius: 50%;
+        transition: transform 0.5s;
+      }
+
+      button:active::after {
+        transform: translate(-50%, -50%) scale(2);
+      }
+
+      /* Goal Items */
+      .goals-list {
+        margin-top: 2rem;
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(350px, 1fr)
+        ); /* Increased minmax */
+        gap: 1.5rem; /* Increased gap */
+      }
+
+      .goal-item {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 1.5rem; /* Increased padding */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .goal-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(79, 172, 254, 0.2);
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .goal-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem; /* Increased margin */
+      }
+
+      .goal-item-title {
+        font-weight: 600;
+        color: #4facfe;
+        font-size: 1.3rem; /* Increased font-size */
+      }
+
+      .goal-item-user {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .goal-item-amount {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-bottom: 0.75rem; /* Increased margin */
+      }
+
+      .goal-item-time {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .goal-item-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem; /* Increased gap */
+        margin-top: 1.25rem; /* Increased margin */
+      }
+
+      .goal-item-actions button {
+        background: none;
+        border: none;
+        color: #4facfe;
+        cursor: pointer;
+        transition: color 0.3s ease;
+        padding: 0.6rem 1rem; /* Increased padding */
+        border-radius: 10px; /* Increased border-radius */
+        font-size: 1rem;
+      }
+
+      .goal-item-actions button:hover {
+        color: #00f2fe;
+        background: rgba(79, 172, 254, 0.1);
+      }
+
+      /* Loading Animation */
+      .loading-spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid rgba(79, 172, 254, 0.3);
+        border-radius: 50%;
+        border-top-color: #4facfe;
+        animation: spin 1s ease-in-out infinite;
+        margin: 0 auto;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* Mobile Optimizations */
+      @media (max-width: 480px) {
+        .container {
+          padding: 10px;
+        }
+
+        .card {
+          border-radius: 0;
+          padding: 1.5rem;
+        }
+
+        .input-group {
+          margin-bottom: 1.5rem;
+        }
+
+        .goals-list {
+          grid-template-columns: 1fr;
+          gap: 0.8rem;
+        }
+
+        .goal-item {
+          padding: 1rem;
+        }
+
+        .goal-item-title {
+          font-size: 1.1rem;
+        }
+
+        .goal-item-actions {
+          justify-content: flex-start;
+        }
+      }
+
+      /* Dashboard Specific Styles */
+      #summary {
+        margin-bottom: 2rem;
+      }
+
+      #summary h2 {
+        margin-bottom: 1rem;
+        color: #fff;
+      }
+
+      #summary p {
+        margin-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      #controls {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      #controls label {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #fff;
+      }
+
+      #controls select {
+        padding: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        font-size: 1rem;
+      }
+
+      #visualizations {
+        margin-bottom: 2rem;
+      }
+
+      #visualizations h2 {
+        margin-bottom: 1rem;
+        color: #fff;
+      }
+
+      #visualizations p {
+        margin-bottom: 1.5rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 500px; /* Increased max-width */
+        height: 400px; /* Increased height */
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      @media (min-width: 768px) {
+        .chart-container {
+          height: 450px; /* Increased height */
+        }
+      }
+
+      /* Progress Bar Styles */
+      .progress-bar-bg {
+        background-color: #eaeaea;
+      }
+
+      .progress-bar-fill {
+        background-color: #86a8e7;
+        transition: width 0.5s ease-in-out;
+      }
+
+      /* Form Select Arrow */
+      select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em;
+        padding-right: 2.5rem;
+      }
+
+      /* Custom Styles for Dashboard */
+      .dashboard-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 2rem;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+      }
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        color: #4facfe;
+      }
+
+      .stat-card p {
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 0;
+        color: #fff;
+      }
+
+      .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+      }
+
+      .chart-card {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .chart-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        color: #4facfe;
+        text-align: center;
+      }
+
+      .error-message {
+        background: rgba(255, 99, 132, 0.1);
+        color: #ff6384;
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        margin: 1rem 0;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 99, 132, 0.2);
+      }
+
+      .goal-status {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
+      }
+
+      .goal-status.not-started {
+        background: rgba(251, 191, 36, 0.1);
+        color: #fbbf24;
+      }
+
+      .goal-status.in-progress {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+      }
+
+      .goal-status.completed {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+      }
+
+      /* Add these styles to your existing CSS */
+      .goal-time {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .goal-time i {
+        font-size: 1rem;
+      }
+
+      .goal-time.expired {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+      }
+
+      .goal-time.urgent {
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+      }
+
+      .goal-time.warning {
+        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.1);
+      }
+
+      .goal-time.normal {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        margin-top: 1rem;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 3px;
+        transition: width 0.5s ease-in-out;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div class="container">
+      <div class="card">
+        <h1 class="title">Goal Tracker</h1>
+
+        <div class="input-group">
+          <input type="text" id="username" placeholder="Your Name" required />
+          <input type="text" id="goalTitle" placeholder="Goal Title" required />
+          <input
+            type="number"
+            id="goalAmount"
+            placeholder="Enter goal amount"
+            required
+          />
+          <input type="datetime-local" id="goalDate" required />
+          <select id="goalCategory" class="form-select" required >
+            <option value="Personal" style="background-color: rgb(0, 0, 0)" >Personal</option>
+            <option value="Career" style="background-color: rgb(0, 0, 0)" >Career</option>
+            <option value="Health" style="background-color: rgb(0, 0, 0)" >Health</option>
+            <option value="Financial" style="background-color: rgb(0, 0, 0)" >Financial</option>
+          </select>
+          <select id="goalStatus" class="form-select" required>
+            <option value="Not Started" style="background-color: rgb(0, 0, 0)">Not Started</option>
+            <option value="In Progress" style="background-color: rgb(0, 0, 0)">In Progress</option>
+            <option value="Completed" style="background-color: rgb(0, 0, 0)">Completed</option>
+          </select>
+          <button onclick="setGoal()">Add Goal</button>
+        </div>
+
+        <!-- Add this div for goals list -->
+        <div id="goalsList" class="goals-list">
+          <!-- Goals will be rendered here -->
+        </div>
+      </div>
+
+      <!-- Dashboard Section -->
+      <div class="dashboard-card">
+        <section id="summary" class="mb-8">
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-semibold">Dashboard Summary</h2>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3>Total Goals</h3>
+              <p id="total-goals">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Completed</h3>
+              <p id="completed-goals">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>In Progress</h3>
+              <p id="in-progress-goals">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Avg. Completion</h3>
+              <p id="avg-completion">0%</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="visualizations">
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h3>Goals by Status</h3>
+              <div class="chart-container">
+                <canvas id="status-chart"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Goals by Category</h3>
+              <div class="chart-container">
+                <canvas id="category-chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Move all JavaScript here, before closing body tag -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/app.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const goalsData = [
+          {
+            id: 1,
+            name: "Learn Advanced JavaScript",
+            category: "Career",
+            status: "In Progress",
+            progress: 60,
+          },
+          {
+            id: 2,
+            name: "Complete Q3 Project",
+            category: "Career",
+            status: "In Progress",
+            progress: 85,
+          },
+          {
+            id: 3,
+            name: "Read 12 Books",
+            category: "Personal",
+            status: "In Progress",
+            progress: 50,
+          },
+          {
+            id: 4,
+            name: "Run a 5K Race",
+            category: "Health",
+            status: "Completed",
+            progress: 100,
+          },
+          {
+            id: 5,
+            name: "Daily Meditation",
+            category: "Health",
+            status: "In Progress",
+            progress: 75,
+          },
+          {
+            id: 6,
+            name: "Plan Vacation",
+            category: "Personal",
+            status: "Not Started",
+            progress: 0,
+          },
+          {
+            id: 7,
+            name: "Update Portfolio Website",
+            category: "Career",
+            status: "Completed",
+            progress: 100,
+          },
+          {
+            id: 8,
+            name: "Learn to Cook a New Dish",
+            category: "Personal",
+            status: "Completed",
+            progress: 100,
+          },
+          {
+            id: 9,
+            name: "Strength Training 3x/week",
+            category: "Health",
+            status: "In Progress",
+            progress: 90,
+          },
+          {
+            id: 10,
+            name: "Finish Online Course",
+            category: "Career",
+            status: "Not Started",
+            progress: 10,
+          },
+        ];
+
+        const statusFilter = document.getElementById("status-filter");
+        const categoryFilter = document.getElementById("category-filter");
+        const goalListContainer = document.getElementById("goalsList");
+        const noGoalsMessage = document.getElementById("no-goals-message");
+
+        const statusChartCtx = document
+          .getElementById("status-chart")
+          ?.getContext("2d");
+        const categoryChartCtx = document
+          .getElementById("category-chart")
+          ?.getContext("2d");
+        let statusChart, categoryChart;
+
+        const statusColors = {
+          "Not Started": "#FBBF24",
+          "In Progress": "#3B82F6",
+          Completed: "#10B981",
+        };
+
+        // Initialize the dashboard
+        populateCategoryFilter();
+        updateDashboard();
+
+        // Add event listeners
+        if (statusFilter)
+          statusFilter.addEventListener("change", updateDashboard);
+        if (categoryFilter)
+          categoryFilter.addEventListener("change", updateDashboard);
+      });
+    </script>
+  </body>
+</html>
